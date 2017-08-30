@@ -1,0 +1,32 @@
+web:
+  image: 'gitlab/gitlab-ce:latest'
+  restart: always
+  hostname: '<fqdn>'
+  environment:
+    GITLAB_OMNIBUS_CONFIG: |
+      external_url 'https://<fqdn>'
+      nginx['ssl_certificate'] = "/ssl/live/<fqdn>/fullchain.pem"
+      nginx['ssl_certificate_key'] = "/ssl/live/<fqdn>/privkey.pem"
+      gitlab_rails['gitlab_email_enabled'] = true
+      gitlab_rails['gitlab_email_from'] = 'noreply@<fqdn>'
+      gitlab_rails['gitlab_email_display_name'] = 'GitLab'
+      gitlab_rails['smtp_enable'] = true
+      gitlab_rails['smtp_address'] = "smtp.sendgrid.net"
+      gitlab_rails['smtp_port'] = 587
+      gitlab_rails['smtp_user_name'] = "sendgrid_account"
+      gitlab_rails['smtp_password'] = "sendgrid_password"
+      gitlab_rails['smtp_domain'] = "smtp.sendgrid.net"
+      gitlab_rails['smtp_authentication'] = "login"
+      gitlab_rails['smtp_enable_starttls_auto'] = true
+      gitlab_rails['smtp_tls'] = false
+  ports:
+    - '30080:80'
+    - '30443:443'
+    - '30022:22'
+  volumes:
+    - '/srv/gitlab/config:/etc/gitlab'
+    - '/srv/gitlab/logs:/var/log/gitlab'
+    - '/srv/gitlab/data:/var/opt/gitlab'
+    - '/etc/letsencrypt/archive/<fqdn>:/ssl/archive/<fqdn>:ro'
+    - '/etc/letsencrypt/live/<fqdn>:/ssl/live/<fqdn>:ro'
+
